@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "# Hello, world!\n#\n# This is an example function named 'hello'\n# which prints 'Hello, world!'.\n#\n# You can learn more about package authoring with RStudio at:\n#\n#   http://r-pkgs.had.co.nz/\n#\n# Some useful keyboard shortcuts for package authoring:\n#\n#   Build and Reload Package:  'Cmd + Shift + B'\n#   Check Package:             'Cmd + Shift + E'\n#   Test Package:              'Cmd + Shift + T'\n\n#' Ridge regression using SVD.\n#' Source: Github called bis557, lecture notes, originally written by Michale Kane\n#'\n#' @param form The formula to extract X from input dataset.\n#' @param data Input dataset.\n#' @param lambda Penalization parameter, default=0\n#' @return The estimated model as a list.\n#' @export\n#' @examples\n#' ridge(Sepal.Length ~ ., iris, lambda = 0.1)\n#'\n#'\n#'\nridge <- function(form, data, lambda = 0) {\n  rownames(data) <- NULL\n  X <- model.matrix(form, data)\n  # Y <- data[as.numeric(rownames(X)), as.character(form)[2]]\n  Y <- data[[as.character(form)[2]]][as.numeric(rownames(X))]\n  beta <- solve( crossprod(X) + diag(rep(lambda, ncol(X))) ) %*% t(X) %*% Y\n  ret<-list()\n  ret$coefficients <- beta\n  ret$formula <- form\n  #class(ret) <- c(class(ret), \"ridge_regression\")\n  ret\n}\n#library(devtools)\n#devtools::document()\n\n#usethis::use_testthat()\n\n#devtools::test()\n",
+    "created" : 1571779028896.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "420012403",
+    "id" : "38E2888F",
+    "lastKnownWriteTime" : 1571865905,
+    "last_content_update" : 1571865905589,
+    "path" : "~/MPH3/Comp_Stats/homework2/R/ridge.R",
+    "project_path" : "R/ridge.R",
+    "properties" : {
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

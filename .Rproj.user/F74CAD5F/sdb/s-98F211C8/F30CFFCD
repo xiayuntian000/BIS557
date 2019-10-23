@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "library(testthat)\nlibrary(homework2)\n#library(glmnet)\nlibrary(MASS)\n#library(parcor)\nlibrary(permute)\n#test_check(\"homework2\")\ncontext(\"Test the output of homework 2, ridge.\")\n\ntest_that(\"You ridge() function works in an easy case.\", {\n\n  data(iris)\n  lamb=0.01\n  fit_my_ridge <- ridge(Sepal.Length ~ ., iris, lambda = lamb)\n\n  X <- model.matrix(Sepal.Length ~ .,iris)\n\n  Y <- iris$Sepal.Length\n  #fit_glmnet <- glmnet(X,Y,alpha=0,lambda = lamb)\n  fit_ridge <- lm.ridge(Sepal.Length ~ ., iris, lambda = lamb)\n\n  #expect_equivalent(as.double(fit_my_ridge$coefficients),as.double(coef(fit_glmnet,s=lamb))[-2],\n                   # tolerance = 1)\n  expect_equivalent(as.matrix(fit_my_ridge$coefficients),as.matrix(coef(fit_ridge)),\n                    tolerance = 0.05)\n})\n\n\ntest_that(\"You optimization() function works in an easy case.\", {\n\n  data(iris)\n  set.seed(38)\n  X <- model.matrix(Sepal.Length ~ .,iris)\n\n  Y <- iris$Sepal.Length\n  my_lambda <- optimize(X,Y,5,1e-10,400,500)\n\n  #fit_glmnet <- glmnet(X,Y,alpha=0,lambda = lamb)\n  n <- 200\n  N <- 500\n  L=n*2\n  k=5\n  # proportion=1/k\n  # folds <- cut(seq(1,nrow(X)),breaks=k,labels=FALSE)\n  # mse_total=NULL\n  # for(i in 1:k){\n  #   idx <- which(folds==i,arr.ind=TRUE)\n  #   test_X <- X[idx, ]\n  #   train_X <- X[-idx, ]\n  #   test_Y <- Y[idx ]\n  #   train_Y <- Y[-idx]\n  #   lambda_vals <- seq(1e-10, L, length.out = N)\n  #    beta_mat <- rep(0, n*2)\n  #   for (i in 1:n*2){\n  #      ridge_me <- ridge(Sepal.Length ~ ., iris, lambda = lambda_vals[i] )\n  #      beta_mat[i] <- ridge_me$coefficients  }\n  #\n  #   beta_mat <- sapply(lambda_vals,function(x) {\n  #     ridge_me <- lm.ridge(train_Y ~ ., as.data.frame(cbind(train_X,train_Y)), lambda = x)\n  #     return(matrix(as.double(ridge_me$coefficients[-2])))\n  #   })\n  #   y_hat <- test_X %*% beta_mat\n  #   y_hat <- crossprod(X, beta_mat)\n  #   #mse <- apply((y_hat - y_test)^2, 2, mean)\n  #   mse <- as.matrix(apply((y_hat - test_Y)^2, 2, mean))\n  #   mse_total=cbind(mse_total,mse)\n  # }\n  # mse_avg=apply(mse_total,1,mean)\n  # lmridge_lambda <- lambda_vals[which.min(mse_avg)]\n  #lmridge_lambda <- ridgereg.cv(Y,X,5 ,lambda_vals)\n  lambda_vals <- seq(1e-10, L, length.out = N)\n  fit_ridge <- lm.ridge(Sepal.Length ~ ., iris, lambda = lambda_vals)\n  #fit_ridge <- lm.ridge(mpg ~ ., mtcars, lambda = lambda_vals)\n\n  lmridge_lambda<- fit_ridge$lambda[which.min(fit_ridge$GCV)]\n  #lmridge_lambda<-cv.glmnet(as.matrix(X),as.matrix(Y),nfolds=5,lambda = lambda_vals)\n  expect_equivalent(my_lambda,lmridge_lambda ,\n                    tolerance = 0.01)\n})\n",
+    "created" : 1571853937192.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3265419683",
+    "id" : "F30CFFCD",
+    "lastKnownWriteTime" : 1571870646,
+    "last_content_update" : 1571870646881,
+    "path" : "~/MPH3/Comp_Stats/homework2/tests/testthat/testthat.R",
+    "project_path" : "tests/testthat/testthat.R",
+    "properties" : {
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

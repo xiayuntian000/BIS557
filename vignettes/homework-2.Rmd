@@ -1,0 +1,244 @@
+---
+title: "homework-2"
+author: Yuntian Xia
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+```
+## Question 1
+
+Y=X$\beta$+$\epsilon$
+$\epsilon$=Y-X$\beta$
+The sum of squared error $\epsilon$'$\epsilon$
+= (Y-X$\beta$)'(Y-X$\beta$)
+= (Y'-$\beta$'X')(Y-X$\beta$)
+= Y'Y - $\beta$'X'Y - Y'X$\beta$ + $\beta$'X'X$\beta$
+= Y'Y - 2$\beta$'X'Y + $\beta$'X'X$\beta$
+
+Taking derivative of $\epsilon$'$\epsilon$:
+$$
+\frac {\partial\epsilon' \epsilon}{\partial \beta}= -2 X'Y+2X'X\beta
+ \\
+ set\ to \ zero:\\
+ -2 X'Y+2X'X\beta=0
+ \\
+\hat \beta = (X'X)^{-1}X'Y
+
+ 
+$$
+\usepackage{amsmath}
+$$
+\begin{bmatrix} 
+\hat \beta_0 \\
+\hat \beta_1
+\end{bmatrix}
+=(X'X)^{-1}X'Y
+\\
+X'X=
+\begin{bmatrix} 
+1&1&...&1 \\
+x_1&x_2&...&x_n
+\end{bmatrix}
+\begin{bmatrix} 
+1 & x_1 \\
+1 & x_2 \\
+... & ...\\
+1 & x_n
+\end{bmatrix}
+\\
+=
+\begin{bmatrix} 
+n & sum(x_i) \\
+sum(x_i) & sum(x_i^2) 
+\end{bmatrix}\\
+
+det(X'X) =n\sum_{i=1}^{n}x_i^2-n^2\bar x^2 \\
+(X'X)^{-1}=\frac{1}{n\sum_{i=1}^{n}x_i^2-n^2\bar x^2}
+\begin{bmatrix} 
+\sum x_i^2 & - \sum x_i \\
+- \sum x_i & n 
+\end{bmatrix}\\
+=\frac{1}{n(\sum_{i=1}^{n}x_i-\bar x)^2}
+\begin{bmatrix} 
+\sum x_i^2 & - \sum x_i \\
+- \sum x_i & n 
+\end{bmatrix}\\
+$$
+$$
+\hat \beta=
+\begin{bmatrix} 
+\hat \beta_0 \\
+\hat \beta_1
+\end{bmatrix}=(X'X)^{-1}X'Y\\
+
+=\frac{1}{n(\sum_{i=1}^{n}x_i-\bar x)^2}
+\begin{bmatrix} 
+\sum x_i^2 & - \sum x_i \\
+- \sum x_i & n 
+\end{bmatrix}
+\begin{bmatrix} 
+1&1&...&1 \\
+x_1&x_2&...&x_n
+\end{bmatrix}
+\begin{bmatrix} 
+ y_1 \\
+ y_2 \\
+...\\
+ y_n
+\end{bmatrix}\\
+=\frac{1}{n(\sum_{i=1}^{n}x_i-\bar x)^2}
+\begin{bmatrix} 
+\sum x_i^2 & - \sum x_i \\
+- \sum x_i & n 
+\end{bmatrix}
+
+\begin{bmatrix} 
+\sum y_i \\
+\sum x_i y_i 
+\end{bmatrix}\\
+
+=\frac{1}{n(\sum_{i=1}^{n}x_i-\bar x)^2}
+\begin{bmatrix} 
+\sum x_i^2 \sum y_i  - \sum x_i \sum x_i y_i  \\
+- \sum x_i\sum y_i  + n \sum x_i y_i 
+\end{bmatrix}\\
+
+=\frac{1}{(\sum_{i=1}^{n}x_i-\bar x)^2}
+\begin{bmatrix} 
+\bar y \sum x_i^2   - \bar x \sum x_i y_i  \\
+- n \bar x \bar y +  \sum x_i y_i 
+\end{bmatrix}\\
+
+=\frac{1}{(\sum_{i=1}^{n}x_i-\bar x)^2}
+\begin{bmatrix} 
+\bar y (\sum x_i^2   - \bar x^2)-\bar x ( \sum x_i y_i-\bar y \bar x)  \\
+ \sum (x_i - \bar x)(y_i - \bar y)
+\end{bmatrix}\\
+
+=
+\begin{bmatrix} 
+\bar y  - \hat \beta_1 \bar x  \\
+\frac{\sum (x_i - \bar x)(y_i - \bar y)}{(\sum_{i=1}^{n}x_i-\bar x)^2}
+\end{bmatrix}\\
+
+$$
+Thus $\beta_0 = \bar y  - \hat \beta_1 \bar x \\ \beta_1 = \frac{\sum (x_i - \bar x)(y_i - \bar y)}{(\sum_{i=1}^{n}x_i-\bar x)^2}$
+
+
+## Question 4
+```{r}
+casl_ols_svd  <- function(X, y){
+svd_output <- svd(X)
+r <- sum(svd_output$d > .Machine$double.eps)
+U <- svd_output$u[, 1:r]
+V <- svd_output$v[, 1:r]
+beta <- V %*% (t(U) %*% y / svd_output$d[1:r])
+beta
+}
+```
+
+```{r}
+
+#Reproduce
+set.seed(38)
+
+n <- 1000; p <- 25
+beta <- c(1, rep(0, p - 1))
+X <- matrix(rnorm(n * p), ncol = p)
+
+#Stable
+svals <- svd(t(X)%*%X)$d
+max(svals) / min(svals)
+
+N <- 1e4; l2_errors <- rep(0, N)
+for (k in 1:N) {
+  y <- X %*% beta + rnorm(n)
+  betahat <- casl_ols_svd(X, y)
+l2_errors[k] <- sqrt(sum((betahat - beta)^2))
+}
+mean(l2_errors)
+
+#Unstable
+alpha <- 0.001
+X[,1] <- X[,1] * alpha + X[,2] * (1 - alpha)
+svals <- svd(t(X)%*%X)$d
+max(svals) / min(svals)
+
+N <- 1e4; l2_errors <- rep(0, N)
+for (k in 1:N) {
+  y <- X %*% beta + rnorm(n)
+  betahat <- solve(crossprod(X), crossprod(X, y))
+  l2_errors[k] <- sqrt(sum((betahat - beta)^2))
+}
+mean(l2_errors)
+```
+We can see from the replicate results that the first (stable) senario has lower condition number compared to the second ( unstable) senario (1.774552 vs. 4178456), and the error is lower in the stable senario (0.1593734 vs. 38.53818). Hence, as the numerical stability decreases, statistical errors increase.
+```{r}
+set.seed(38)
+n <- 1000; p <- 25
+beta <- c(1, rep(0, p - 1))
+X <- matrix(rnorm(n * p), ncol = p)
+
+#Stable, with ridge
+lambda=0.1
+svals <- svd(t(X)%*%X+diag(rep(lambda, ncol(X))))$d
+max(svals) / min(svals)
+
+l2_errors2 <- rep(0, N)
+for (k in 1:N) {
+  y <- X %*% beta + rnorm(n)
+  betahat2 <- solve( crossprod(X) + diag(rep(lambda, ncol(X))) ) %*% t(X) %*% y
+  l2_errors2[k] <- sqrt(sum((betahat2 - beta)^2))
+}
+mean(l2_errors2)
+
+#Unstable, with ridge
+#Unstable
+alpha <- 0.001
+X[,1] <- X[,1] * alpha + X[,2] * (1 - alpha)
+svals <- svd(t(X)%*%X+diag(rep(lambda, ncol(X))))$d
+max(svals) / min(svals)
+
+N <- 1e4; l2_errors <- rep(0, N)
+for (k in 1:N) {
+  y <- X %*% beta + rnorm(n)
+  betahat2 <- solve( crossprod(X) + diag(rep(lambda, ncol(X))) ) %*% t(X) %*% y
+  l2_errors2[k] <- sqrt(sum((betahat2 - beta)^2))
+}
+mean(l2_errors2)
+```
+From the results, we can see that implementing ridge regressions increase the stability and decrease error in both stable and unstable senarios. When X is stable, implementing ridge regression decrease the condition number from 1.774552 to 1.774447; and when X is unstable, the condition number lowered from 4178456 to 18381.55, thus the stability is increased. Similarly, the error were reduced from 0.1593734 to 0.1593565 and from 38.53818 to 0.7216879, so the errors were decreased by implementing ridge.
+
+
+## Question 5
+
+Taking the derivative:
+$$
+\frac {\partial \frac{1}{2n} ||Y-X\beta||_2^2+\lambda||\beta||_1}{\partial \beta}\\
+= - X^T(Y-X\hat \beta)/n+\lambda sign(\hat \beta) \ (no\ derivative\ at\ \beta=0)
+$$
+Set to zero:
+$$
+- X^T(Y-X\hat \beta)/n+\lambda sign(\hat \beta) = 0 \\
+n\lambda sign(\hat \beta)=X^TY-X^TX\hat \beta \\
+\hat \beta=(X^TX)^{-1}(X^TY-n\lambda sign(\hat \beta))\\
+when\ \hat \beta < 0, the \ equation\ does\ not\ hold,\\
+since\ (X^TX)^{-1} > 0 \ and\ (X^TY+n\lambda)>0.\\
+When\ \hat \beta <0\ , \\
+|\hat \beta|=|X^TX|^{-1}|X^TY-n\lambda sign(\hat \beta)|\\
+since |X^T_j Y| \leq n\lambda \\
+|\hat \beta| \leq  n\lambda (X^TX)^{-1}|1-sign(\hat \beta)|=0 \ when\ \hat \beta > 0.\\
+Thus\ |\hat \beta| = 0.\\
+So \ \hat \beta=0.
+$$

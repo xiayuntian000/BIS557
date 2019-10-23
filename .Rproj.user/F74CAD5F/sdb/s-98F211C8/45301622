@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "# Hello, world!\n#\n#\n# Some useful keyboard shortcuts for package authoring:\n#\n#   Build and Reload Package:  'Cmd + Shift + B'\n#   Check Package:             'Cmd + Shift + E'\n#   Test Package:              'Cmd + Shift + T'\n#'\n#' lambda optimization using k-fold cross validation.\n#'\n#' @name optimize\n#' @param X  X from input dataset.\n#' @param Y  Y from Input dataset.\n#' @param k number of folds for the cross validation\n#' @param start start of test lambda sequence\n#' @param end end of test lambda sequence\n#' @param length number of items in the lambda sequence\n#' @export\n#' @return The estimated model as a list.\n\n#optimize(X,Y,5,0.01,400,500)\noptimize <- function(X,Y,k,start,end,length) {\n  n <- end/2\n  N <- length\n  L=end\n  proportion=1/k\n  folds <- cut(seq(1,nrow(X)),breaks=k,labels=FALSE)\n\n  #permute::shuffle(folds)\n  mse_total=NULL\n  lambda_vals <- seq(start, L, length.out = N)\n  for(i in 1:k){\n    idx <- which(folds==i,arr.ind=TRUE)\n    test_X <- X[idx, ]\n    train_X <- X[-idx, ]\n    test_Y <- Y[idx ]\n    train_Y <- Y[-idx]\n    lambda_vals <- seq(start, L, length.out = N)\n\n    beta_mat <- sapply(lambda_vals,function(x) {\n      ridge_me <- ridge(train_Y ~ ., as.data.frame(cbind(train_X,train_Y)), lambda = x)\n      return(matrix(as.double(ridge_me$coefficients[-1])))\n    })\n    y_hat <- as.matrix(test_X) %*% beta_mat\n    #y_hat <- crossprod(X, beta_mat)\n    #mse <- apply((y_hat - y_test)^2, 2, mean)\n    mse <- as.matrix(apply((y_hat - test_Y)^2, 2, mean))\n    mse_total=cbind(mse_total,mse)\n  }\n  mse_avg=apply(mse_total,1,mean)\n  lambda_vals <- seq(start, L, length.out = N)\n  final_lambda <- lambda_vals[which.min(mse_avg)]\n  return(final_lambda)\n}\n\n",
+    "created" : 1571852134715.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "528584202",
+    "id" : "45301622",
+    "lastKnownWriteTime" : 1571870915,
+    "last_content_update" : 1571870915262,
+    "path" : "~/MPH3/Comp_Stats/homework2/R/optimize.R",
+    "project_path" : "R/optimize.R",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

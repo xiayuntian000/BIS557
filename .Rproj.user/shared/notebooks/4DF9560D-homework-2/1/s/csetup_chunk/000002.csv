@@ -1,0 +1,4 @@
+"0","setwd(""~/path/to/package"")
+"
+"2","Error in setwd(""~/path/to/package"") : cannot change working directory
+"

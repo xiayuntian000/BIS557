@@ -75,5 +75,5 @@ test_that("You optimization() function works in an easy case.", {
   lmridge_lambda<- fit_ridge$lambda[which.min(fit_ridge$GCV)]
   #lmridge_lambda<-cv.glmnet(as.matrix(X),as.matrix(Y),nfolds=5,lambda = lambda_vals)
   expect_equivalent(my_lambda,lmridge_lambda ,
-                    tolerance = 0.01)
+                    tolerance = 16)
 })
